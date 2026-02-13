@@ -93,4 +93,518 @@
             color: #0f0;
             padding: 15px;
             border-radius: 8px;
-            font-family: 'Courier New', Courier, monospace
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 160px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px solid #555;
+        }
+
+        .boss-info {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #666;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .dialogue {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #fff;
+            margin: 10px 0;
+            min-height: 60px;
+        }
+
+        .round-indicator {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .btn-option {
+            background: white;
+            border: 2px solid var(--text-dark);
+            padding: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.1s;
+            text-align: left;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .btn-option:hover {
+            background: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        /* 策略标签颜色 */
+        .tag-label {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            color: white;
+            vertical-align: middle;
+        }
+        .bg-defend { background-color: #757575; } /* 灰色-防守/自黑 */
+        .bg-dodge { background-color: #1976D2; }  /* 蓝色-闪避/糊弄/废话 */
+        .bg-attack { background-color: #D32F2F; } /* 红色-进攻/暴击/回旋镖 */
+
+        .status-log {
+            font-size: 0.9rem;
+            color: #d93025;
+            margin-top: 10px;
+            padding: 8px;
+            background: #fff5f5;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- 尴尬急救包 --- */
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .sound-btn {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.1s;
+        }
+
+        .sound-btn:active { transform: scale(0.95); }
+        .hidden { display: none !important; }
+
+        /* 动画 */
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div style="margin:0 auto;width:0px;height:0px;overflow:hidden;">
+        <img src="icon.jpg" width="400" alt="分享缩略图">
+    </div>
+
+    <h1>🧨 春节保命局之舌战亲戚 🧨</h1>
+
+    <div class="container">
+        
+        <div class="card" id="select-screen">
+            <h2>👾 亲戚对线模拟器</h2>
+            <p style="font-size:0.9rem; color:#666;">不同的亲戚有不同的攻击流派，请谨慎选择。</p>
+            
+            <div class="character-select-grid">
+                <div class="char-btn" onclick="startGame('aunt')">
+                    <span class="char-avatar">👹</span>
+                    <span class="char-name">二大娘</span>
+                    <span class="char-tag">催婚 / 催生</span>
+                </div>
+                <div class="char-btn" onclick="startGame('uncle')">
+                    <span class="char-avatar">🤑</span>
+                    <span class="char-name">三叔</span>
+                    <span class="char-tag">查户口 / 炫富</span>
+                </div>
+                <div class="char-btn" onclick="startGame('grandpa')">
+                    <span class="char-avatar">🗿</span>
+                    <span class="char-name">大舅</span>
+                    <span class="char-tag">考公 / 考研</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card hidden" id="battle-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0;">⚔️ 对战进行中</h2>
+                <button onclick="backToMenu()" style="border:none; background:transparent; text-decoration:underline; cursor:pointer; color:#666;">退出</button>
+            </div>
+            
+            <div class="battle-screen" id="battle-screen">
+                <div class="boss-info">
+                    <span id="boss-name">BOSS</span>
+                    <span class="hp-bar">耐心: <span id="boss-hp">100</span>%</span>
+                </div>
+                <div class="dialogue" id="question-text">Loading...</div>
+                <div class="boss-info" style="margin-top:auto; border-top:1px dashed #666; border-bottom:none; padding-top:5px;">
+                    <span>YOU</span>
+                    <span class="hp-bar" style="color:#0f0;">心情: <span id="my-hp">100</span>%</span>
+                </div>
+                <div class="round-indicator">Round: <span id="current-round">1</span>/5</div>
+            </div>
+
+            <div class="status-log" id="status-log">战斗开始！请选择回复...</div>
+
+            <div class="options-grid" id="options-area">
+                </div>
+            
+            <button onclick="backToMenu()" class="hidden" style="width:100%; padding:15px; background:#333; color:white; border:none; margin-top:10px; cursor:pointer; font-size:1rem; border-radius:6px;" id="restart-btn">返回主菜单</button>
+        </div>
+
+        <div class="card">
+            <h2>🚑 尴尬离场急救包</h2>
+            <div class="sound-grid">
+                <button class="sound-btn" onclick="playFakeCall()">
+                    <span style="font-size:1.2rem">📱</span> 老板来电
+                </button>
+                <button class="sound-btn" onclick="playNotification()">
+                    <span style="font-size:1.2rem">💬</span> 微信轰炸
+                </button>
+                <button class="sound-btn" onclick="playKnock()">
+                    <span style="font-size:1.2rem">🚪</span> 急促敲门
+                </button>
+                <button class="sound-btn" onclick="playCat()">
+                    <span style="font-size:1.2rem">🐈</span> 必须去喂猫
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    // --- 核心数据配置 ---
+    const gameData = {
+        // 二大娘
+        aunt: {
+            name: "二大娘",
+            hp: 100,
+            questions: [
+                {
+                    q: "哎哟，还不带个对象回来啊？女孩子/男孩子青春可不等人啊！",
+                    options: [
+                        { text: "缘分还没到，再等等吧，我不急。", label: "防守", logic: "defend", effect: "二大娘发起了说教技能" },
+                        { text: "二大娘，我现在正处于情感架构重组，痛点是优质资源下沉不足，打算春节后开启对象孵化计划，争取在Q4季度实现两人同行的生态布局。", label: "大厂废话文学", logic: "dodge", effect: "二大娘陷入了短暂的混乱，怀疑你被传销洗脑了，眼神中充满了怜悯" },
+                        { text: "还是二大娘您早成家好啊，瞧瞧现在这日子，过得多幸福！", label: "回旋镖", logic: "attack", effect: "暴击！二大娘想起了家里不做家务的老公，开始跟你吐槽婚姻的不幸" }
+                    ]
+                },
+                {
+                    q: "你就是眼光太高了！你听大娘我一句劝，人老实、对你好、有个稳定工作就行了！",
+                    options: [
+                        { text: "我是想找个老实的，可老实人一看我爱花钱、不干家务、脾气还大，也看不上我啊！", label: "自黑", logic: "defend", effect: "二大娘一时语塞，上下打量了你一番，竟然觉得你说得很有道理" },
+                        { text: "哎哟二大娘，还是您当年有眼光！二大爷当初怎么追您的？我学习学习！", label: "捧杀转移法", logic: "dodge", effect: "二大娘老脸一红，开启30分钟爱情回忆录，你从被审问的变成听八卦的" },
+                        { text: "我正按您这标准找呢！要不您给我介绍一个？您介绍的肯定靠谱！", label: "乖巧顺毛", logic: "dodge", effect: "二大娘立马进入“热心红娘”模式，你被动开启春节相亲节奏" }
+                    ]
+                },
+                {
+                    q: "结婚这么久怎么还不要孩子？你看隔壁小王比你还小两岁，孩子都会打酱油了！",
+                    options: [
+                        { text: "您这么喜欢孩子，要不您再生一个？现在政策开放了，我让我妈给您伺候月子！", label: "反向催生", logic: "attack", effect: "二大娘气的当场晕厥，发誓再也不和你家往来" },
+                        { text: "二大娘，我倒是想生，您能抽空帮我带孩子吗？", label: "道德绑架", logic: "dodge", effect: "成功闪避，二大娘自动切换换题" },
+                        { text: "小王那孩子好像长得不太像他啊...", label: "转移话题", logic: "attack", effect: "绝杀！全村的八卦转移了" }
+                    ]
+                },
+                {
+                    q: "（神神秘秘）你和大娘说实话，是不是身体有问题？大娘认识个老中医……",
+                    options: [
+                        { text: "（压低声音，一脸严肃）大娘，您眼神真毒，其实我这钱包有点贫血，能不能让那老中医帮我开个方子。", label: "哭穷", logic: "defend", effect: "大娘下意识捂紧了钱包，迅速撤退。" },
+                        { text: "二大娘您真是亲大娘！但您这方子先紧着我哥嫂用，他俩不是结婚更早吗？我排队，我不急！", label: "反客为主", logic: "dodge", effect: "完美甩锅，家庭战火转移" },
+                        { text: "（煞有介事）嘘！大娘，这事儿大师给我算过了，说我“童子功”还没练成呢，等到我35年那年，文曲星看见我家亮堂，自然就投胎来了。", label: "用魔法打败魔法", logic: "dodge", effect: "二大娘成功被你忽悠懵" }
+                    ]
+                },
+                {
+                    q: "你不结婚不生娃，老了生病了连个端茶倒水的人都没有！",
+                    options: [
+                        { text: "没事，按照现在的加班强度，我应该活不到那个时候。", label: "自爆", logic: "defend", effect: "气氛瞬间凝重，亲戚开始劝你身体要紧，忘了催婚。" },
+                        { text: "养儿也不一定防老啊，你看隔壁李婶，三个儿子都不着家，过年不还是一个人吃剩饭？", label: "现实暴击", logic: "attack", effect: "全场沉默，部分亲戚感到膝盖中了一箭" },
+                        { text: "所以我现在更要努力攒钱，等我老了，雇仨机器人伺候我！一个端茶，一个捶腿，一个陪聊讲八卦！", label: "科技代偿", logic: "dodge", effect: "二大娘眼神透露出了“你没事吧”的意味" }
+                    ]
+                }
+            ]
+        },
+
+        // 三叔
+        uncle: {
+            name: "三叔",
+            hp: 120, 
+            questions: [
+                {
+                    q: "回来啦！今年干得咋样？年薪有这个数了吗？（伸出两根手指）",
+                    options: [
+                        { text: "两千？那肯定有！都不止呢！", label: "装傻充楞", logic: "dodge", effect: "三叔觉得你混得太惨，不好意思再问了" },
+                        { text: "公司签了保密协议，说漏了要开除的。", label: "神秘主义", logic: "dodge", effect: "三叔觉得你在装X" },
+                        { text: "不到十万吧...哦您问月薪啊？我以为问交多少税呢。", label: "反向炫耀", logic: "attack", effect: "绝杀！凡尔赛之王" }
+                    ]
+                },
+                {
+                    q: "你们公司今年效益咋样，年终奖发了多少啊？",
+                    options: [
+                        { text: "没多少，刚好够给您买点水果。", label: "太极推手", logic: "defend", effect: "安全过关，但略显卑微" },
+                        { text: "三叔，我们这行不看年终奖，看福报。我为公司奉献，公司给我成长，谈钱就俗了。", label: "互联网牛马自嘲", logic: "dodge", effect: "亲戚们都觉得你境界高，对你竖起了大拇指" },
+                        { text: "发了三箱西北风和五斤画的大饼。我都存着呢，打算过年带回来给咱全家尝尝鲜。", label: "抽象艺术", logic: "dodge", effect: "三叔被你的幽默感噎住，一时分不清你是真穷还是在讽刺。" }
+                    ]
+                },
+                {
+                    q: "你这工作稳不稳定啊，听说现在互联网公司都在裁员？看你表哥进了国企，旱涝保收多好！",
+                    options: [
+                        { text: "三叔，现在没有稳定的工作，只有稳定的能力。我每天都在提升自己，就算公司没了，我出去分分钟也能再造一个。", label: "正能量洗脑", logic: "dodge", effect: "三叔被这格局震撼：“有出息！是这么个理儿！”" },
+                        { text: "是啊，表哥那是“为人民服务”，格局大。我这俗人，就选择“为人民币服务”吧。", label: "暗搓搓炫富", logic: "attack", effect: "三叔听出你赚得比表哥多，脸色明显变酸了。" },
+                        { text: "我们这行确实不稳定，但赔偿金高啊！要是被裁了，拿个“N+1”的大礼包，顶得上表哥在国企干一年的工资,我就盼着公司裁我呢！", label: "凡尔赛拉满", logic: "attack", effect: "破防！三叔甚至羡慕起你的“大礼包”。" }
+                    ]
+                },
+                {
+                    q: "还在租房啊？大城市留不下的，早点回老家买套房才是正经事",
+                    options: [
+                        { text: "我也想回，但老板不放人啊，非说离不开我，还要给我加薪，我也很为难。", label: "凡尔赛大师", logic: "dodge", effect: "三叔怀疑你在吹牛，但找不到证据。" },
+                        { text: "老家房价都跌两年了，现在买等于49年入国军。", label: "经济学鬼才", logic: "attack", effect: "三叔尬笑“现在的年轻人精得很”" },
+                        { text: "三叔说得对！我前几天看中了一套学区房，要不首付您支援我点，到时候房价涨了我给您养老！", label: "孝心跳水", logic: "attack", effect: "三叔立即打岔，试图假装没听见转移话题" }
+                    ]
+                },
+                {
+                    q: "听说你在那大公司管事的？能不能给你表弟安排个工作？",
+                    options: [
+                        { text: "我们公司招人得笔试面试，我要是敢走后门马上被开除，到时候还得靠您给我安排工作呢～", label: "反向求助", logic: "defend", effect: "拉低姿态让三叔接不上话，不好意思再为难你。" },
+                        { text: "害，三叔您太高看我了！我要是能安排工作，先把我自己安排成老板了。再说了，表弟这么优秀，还用我安排？随便找个工作都比我强啊！", label: "装傻捧杀", logic: "dodge", effect: "既自谦委婉拒绝，又捧了表弟一句，三叔没法再强求" },
+                        { text: "可以啊没问题！只要表弟雅思过了8.5，精通Python，我马上内推！也就是八轮面试，几千个人争一个坑，不算特别难", label: "借坡下驴", logic: "attack", effect: "三叔看了看旁边大专毕业、正在斗地主的表弟，尴尬地笑了笑：“那啥，吃菜，吃菜。”" }
+                    ]
+                }
+            ]
+        },
+
+        // 大舅
+        grandpa: {
+            name: "大舅",
+            hp: 130, 
+            questions: [
+                {
+                    q: "大学主要任务还是学习！你期末考了多少分？平均绩点有3.9吗？",
+                    options: [
+                        { text: "还行，我主打一个参与感，成绩单都交给命运安排。", label: "糊弄学大师", logic: "dodge", effect: "大舅笑着摇头，放弃追问，转头跟你妈说：“孩子开心就好。”" },
+                        { text: "确实考了3.9，百分制的。", label: "单位魔术", logic: "defend", effect: "大舅刚要夸你，突然意识到哪里不对" },
+                        { text: "还没出分呢。对了舅，听姥姥说您当年上高中的时候，数学好像补考了三次才过？这是真的假的啊？我一直当励志故事听呢！", label: "考古挖掘", logic: "attack", effect: "大舅突然剧烈咳嗽，以此掩饰尴尬，并迅速转移话题去批评旁边的表弟玩手机。" }
+                    ]
+                },
+                {
+                    q: "（打量一番） 光会读书也不行啊！你在学校当学生干部了吗？入党了吗？",
+                    options: [
+                        { text: "入了入了，也不知道怎么就混了个学生会会长。 平时事儿特多，我都怕耽误学习，正想着要不要辞了专心搞科研呢！", label: "淡定装X", logic: "dodge", effect: "亲戚们听了都夸你有出息" },
+                        { text: "当了寝室长，不大不小的芝麻官吧，管着五个人的生老病死呢！", label: "基层治理", logic: "dodge", effect: "大舅觉得你的吹牛本事已经具备了领导干部的素质。" },
+                        { text: "入了，灵活入！目前处于“思想积极、行动观望、室友反对”的三期临床阶段。", label: "敏捷入党", logic: "dodge", effect: "大舅摇了摇头，觉得你这孩子真贫" }
+                    ]
+                },
+                {
+                    q: "能直博吗？一定要读博啊，现在硕士满街走，博士才值钱。",
+                    options: [
+                        { text: "博士那是科学家读的，我算过命了，大师说我适合早点出来当老板，管博士。", label: "玄学", logic: "dodge", effect: "虽然很扯，但对迷信的大舅来说效果拔群。" },
+                        { text: "读！肯定读！不过直博一读就是5年起步，毕业我都快30了，到时候您可别催我恋爱结婚生孩子啊。学历和外甥孙，您和我妈现在商量一下，只能选一个！", label: "囚徒困境", logic: "attack", effect: "亲戚陷入了巨大的两难境地" },
+                        { text: "值钱是值钱，就是变现周期太长。我看新闻了，现在博士毕业送外卖的不少，我还不如现在就去送，少走5年弯路。", label: "逻辑鬼才", logic: "attack", effect: "亲戚CPU过载，发现你的逻辑在“搞钱”这个层面竟然无懈可击。" }
+                    ]
+                },
+                {
+                    q: "论文发表了几篇啊？今年能顺利毕业吗？",
+                    options: [
+                        { text: "发了，朋友圈发了三篇，点赞数比影响因子高多了。", label: "新媒体学术", logic: "dodge", effect: "大舅让你把链接发家族群，他要转发" },
+                        { text: "（摘下帽子）大舅，您看我这头发，我导师说了，什么时候我不洗头也没人能看出来的时候，论文就发出来了。", label: "生理示威", logic: "defend", effect: "大舅看着你那令人心疼的发量，把嘴边的追问咽了回去，转而给你夹了一块猪蹄补补" },
+                        { text: "能不能毕业，得看美国那个OpenAI公司了。这几天ChatGPT服务器老崩，我这论文憋不出来了……", label: "赛博算命", logic: "dodge", effect: "大舅似懂非懂，一脸严肃：“又是美国公司？这帮老外太坏了！专门卡咱们脖子！”" }
+                    ]
+                },
+                {
+                    q: "别搞那些没用的实习，赶紧准备考公！宇宙尽头是编制，其他都是瞎忙。",
+                    options: [
+                        { text: "考，肯定考！我已经在准备了，每天练习Excel做表、PPT画饼，进可考公上岸，退可吃互联网大厂饭，横竖不亏。", label: "对冲策略", logic: "defend", effect: "大舅欣慰地点了点头" },
+                        { text: "我也想考啊！但我酒精过敏，这要是进了体制内，不是给领导添堵吗？", label: "职场潜规则", logic: "dodge", effect: "大舅一副“懂王”表情，遗憾地拍拍你的肩膀" },
+                        { text: "大舅，这事儿得看祖坟。咱家祖坟冒的是发财的“金烟”，不是当官的“青烟”。我要是硬去考公，搞不好会破了咱家的财运。", label: "宗族迷信", logic: "attack", effect: "大舅最听不得“破财运”这种话，立刻改口让你顺势而为" }
+                    ]
+                }
+            ]
+        }
+    };
+
+    // --- 游戏逻辑 ---
+    let currentBossKey = '';
+    let currentQIndex = 0;
+    let myHp = 100;
+    let bossHp = 100;
+
+    function startGame(bossKey) {
+        currentBossKey = bossKey;
+        const bossData = gameData[bossKey];
+        
+        myHp = 100;
+        bossHp = bossData.hp;
+        currentQIndex = 0;
+        
+        document.getElementById('select-screen').classList.add('hidden');
+        document.getElementById('battle-card').classList.remove('hidden');
+        
+        document.getElementById('boss-name').innerText = "BOSS: " + bossData.name;
+        document.getElementById('restart-btn').classList.add('hidden');
+        document.getElementById('options-area').style.display = 'grid';
+        document.getElementById('status-log').style.background = '#fff5f5';
+        document.getElementById('status-log').style.color = '#d93025';
+        
+        updateStats();
+        loadQuestion();
+    }
+
+    function backToMenu() {
+        document.getElementById('battle-card').classList.add('hidden');
+        document.getElementById('select-screen').classList.remove('hidden');
+    }
+
+    function loadQuestion() {
+        const questions = gameData[currentBossKey].questions;
+        
+        if (currentQIndex >= questions.length) {
+            endGame(true, "SURVIVED");
+            return;
+        }
+
+        const qData = questions[currentQIndex];
+        document.getElementById('question-text').innerText = `"${qData.q}"`;
+        document.getElementById('current-round').innerText = currentQIndex + 1;
+        
+        const optionsHtml = qData.options.map((opt, index) => {
+            let colorClass = "";
+            if(opt.logic === 'defend') colorClass = "bg-defend";
+            else if(opt.logic === 'dodge') colorClass = "bg-dodge";
+            else if(opt.logic === 'attack') colorClass = "bg-attack";
+
+            return `<button class="btn-option" onclick="handleChoice(${index})">
+                <span class="tag-label ${colorClass}">${opt.label}</span> ${opt.text}
+            </button>`
+        }).join('');
+        
+        document.getElementById('options-area').innerHTML = optionsHtml;
+        document.getElementById('status-log').innerText = "对方正在观察你的表情...";
+    }
+
+    function handleChoice(index) {
+        const questions = gameData[currentBossKey].questions;
+        const choice = questions[currentQIndex].options[index];
+        const log = document.getElementById('status-log');
+        const screen = document.getElementById('battle-screen');
+
+        // 显示效果文本
+        log.innerText = choice.effect;
+        log.style.background = '#e8f5e9'; // 浅绿底色表示回合结束
+        log.style.color = '#2e7d32';
+
+        // 数值计算
+        if (choice.logic === 'defend') {
+            myHp -= 15; // 忍气吞声，内耗扣血
+        } else if (choice.logic === 'dodge') {
+            bossHp -= 15; // 糊弄成功，对方扣血
+        } else if (choice.logic === 'attack') {
+            myHp += 10; // 爽了回血
+            bossHp -= 35; // 暴击对方
+            screen.classList.add('shake');
+            setTimeout(() => screen.classList.remove('shake'), 500);
+        }
+
+        updateStats();
+
+        if (myHp <= 0) {
+            endGame(false, "DIED");
+        } else if (bossHp <= 0) {
+            endGame(true, "KO");
+        } else {
+            currentQIndex++;
+            // 延长阅读时间
+            setTimeout(() => {
+                if (myHp > 0 && bossHp > 0) {
+                   loadQuestion();
+                   log.style.background = '#fff5f5';
+                   log.style.color = '#d93025';
+                }
+            }, 2500); // 2.5秒阅读时间
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('my-hp').innerText = Math.max(0, myHp);
+        document.getElementById('boss-hp').innerText = Math.max(0, bossHp);
+        document.getElementById('my-hp').style.color = myHp < 50 ? '#d93025' : '#0f0';
+    }
+
+    function endGame(win, type) {
+        let title, msg;
+        const bossName = gameData[currentBossKey].name;
+
+        if (!win) {
+            title = "💀 精神崩溃...";
+            msg = `你没能顶住${bossName}的攻势，最终破防了... 明年一定不回来了！`;
+        } else {
+            if (type === "KO") {
+                title = "🎉 完胜！(K.O.)";
+                msg = `你也太勇了！${bossName}被你怼得怀疑人生，甚至开始反思自己。这个年，你就是家族里的传说！`;
+            } else {
+                title = "😮 勉强幸存";
+                msg = `5回合结束，虽然受了点内伤，但好歹是把${bossName}糊弄过去了。赶紧回房间躺着吧。`;
+            }
+        }
+        
+        document.getElementById('question-text').innerHTML = `<strong style="font-size:1.3rem; color:${win?'#f9d854':'#ff4444'}">${title}</strong><br><br>${msg}`;
+        document.getElementById('options-area').style.display = 'none';
+        document.getElementById('restart-btn').classList.remove('hidden');
+    }
+
+    // --- 音效功能 (已更新为真实MP3文件) ---
+    // 预加载音效文件
+    const sounds = {
+        call: new Audio('./sounds/call.mp3'),
+        wechat: new Audio('./sounds/wechat.mp3'),
+        knock: new Audio('./sounds/knock.mp3'),
+        cat: new Audio('./sounds/cat.mp3')
+    };
+
+    function playFakeCall() {
+        document.getElementById('status-log').innerText = "🔊 播放中：老板来电...";
+        sounds.call.currentTime = 0; // 每次点击都从头开始播放
+        sounds.call.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+
+    function playNotification() {
+        document.getElementById('status-log').innerText = "🔊 播放中：微信轰炸...";
+        sounds.wechat.currentTime = 0;
+        sounds.wechat.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+
+    function playKnock() {
+        document.getElementById('status-log').innerText = "🔊 播放中：敲门声...";
+        sounds.knock.currentTime = 0;
+        sounds.knock.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+    
+    function playCat() {
+         document.getElementById('status-log').innerText = "🔊 播放中：猫叫...";
+         sounds.cat.currentTime = 0;
+         sounds.cat.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+
+</script>
+</body>
+</html>
