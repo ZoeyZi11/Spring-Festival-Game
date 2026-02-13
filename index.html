@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026春节精神状态稳定器 💊</title>
+    <title>2026春节中国式亲戚应对白皮书</title>
     <style>
         :root {
             --primary-red: #d93025;
@@ -217,12 +217,12 @@
 </head>
 <body>
 
-    <h1>🧨 春节渡劫模拟器 🧨</h1>
+    <h1>🧨 春节保命局之舌战亲戚 🧨</h1>
 
     <div class="container">
         
         <div class="card" id="select-screen">
-            <h2>👾 亲戚对线选择</h2>
+            <h2>👾 亲戚对线模拟器</h2>
             <p style="font-size:0.9rem; color:#666;">不同的亲戚有不同的攻击流派，请谨慎选择。</p>
             
             <div class="character-select-grid">
@@ -287,7 +287,6 @@
                     <span style="font-size:1.2rem">🐈</span> 必须去喂猫
                 </button>
             </div>
-            <p style="font-size:0.75rem; color:#888; text-align:center; margin-top:10px;">提示：手机端点击自带震动反馈，效果更佳！</p>
         </div>
 
     </div>
@@ -491,4 +490,117 @@
             else if(opt.logic === 'attack') colorClass = "bg-attack";
 
             return `<button class="btn-option" onclick="handleChoice(${index})">
-                <span class="tag-label ${colorClass}">${opt.label}
+                <span class="tag-label ${colorClass}">${opt.label}</span> ${opt.text}
+            </button>`
+        }).join('');
+        
+        document.getElementById('options-area').innerHTML = optionsHtml;
+        document.getElementById('status-log').innerText = "对方正在观察你的表情...";
+    }
+
+    function handleChoice(index) {
+        const questions = gameData[currentBossKey].questions;
+        const choice = questions[currentQIndex].options[index];
+        const log = document.getElementById('status-log');
+        const screen = document.getElementById('battle-screen');
+
+        // 显示效果文本
+        log.innerText = choice.effect;
+        log.style.background = '#e8f5e9'; // 浅绿底色表示回合结束
+        log.style.color = '#2e7d32';
+
+        // 数值计算
+        if (choice.logic === 'defend') {
+            myHp -= 15; // 忍气吞声，内耗扣血
+        } else if (choice.logic === 'dodge') {
+            bossHp -= 15; // 糊弄成功，对方扣血
+        } else if (choice.logic === 'attack') {
+            myHp += 10; // 爽了回血
+            bossHp -= 35; // 暴击对方
+            screen.classList.add('shake');
+            setTimeout(() => screen.classList.remove('shake'), 500);
+        }
+
+        updateStats();
+
+        if (myHp <= 0) {
+            endGame(false, "DIED");
+        } else if (bossHp <= 0) {
+            endGame(true, "KO");
+        } else {
+            currentQIndex++;
+            // 延长阅读时间
+            setTimeout(() => {
+                if (myHp > 0 && bossHp > 0) {
+                   loadQuestion();
+                   log.style.background = '#fff5f5';
+                   log.style.color = '#d93025';
+                }
+            }, 2500); // 2.5秒阅读时间
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('my-hp').innerText = Math.max(0, myHp);
+        document.getElementById('boss-hp').innerText = Math.max(0, bossHp);
+        document.getElementById('my-hp').style.color = myHp < 50 ? '#d93025' : '#0f0';
+    }
+
+    function endGame(win, type) {
+        let title, msg;
+        const bossName = gameData[currentBossKey].name;
+
+        if (!win) {
+            title = "💀 精神崩溃...";
+            msg = `你没能顶住${bossName}的攻势，最终破防了... 明年一定不回来了！`;
+        } else {
+            if (type === "KO") {
+                title = "🎉 完胜！(K.O.)";
+                msg = `你也太勇了！${bossName}被你怼得怀疑人生，甚至开始反思自己。这个年，你就是家族里的传说！`;
+            } else {
+                title = "😮 勉强幸存";
+                msg = `5回合结束，虽然受了点内伤，但好歹是把${bossName}糊弄过去了。赶紧回房间躺着吧。`;
+            }
+        }
+        
+        document.getElementById('question-text').innerHTML = `<strong style="font-size:1.3rem; color:${win?'#f9d854':'#ff4444'}">${title}</strong><br><br>${msg}`;
+        document.getElementById('options-area').style.display = 'none';
+        document.getElementById('restart-btn').classList.remove('hidden');
+    }
+
+    // --- 音效功能 (已更新为真实MP3文件) ---
+    // 预加载音效文件
+    const sounds = {
+        call: new Audio('./sounds/call.mp3'),
+        wechat: new Audio('./sounds/wechat.mp3'),
+        knock: new Audio('./sounds/knock.mp3'),
+        cat: new Audio('./sounds/cat.mp3')
+    };
+
+    function playFakeCall() {
+        document.getElementById('status-log').innerText = "🔊 播放中：老板来电...";
+        sounds.call.currentTime = 0; // 每次点击都从头开始播放
+        sounds.call.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+
+    function playNotification() {
+        document.getElementById('status-log').innerText = "🔊 播放中：微信轰炸...";
+        sounds.wechat.currentTime = 0;
+        sounds.wechat.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+
+    function playKnock() {
+        document.getElementById('status-log').innerText = "🔊 播放中：敲门声...";
+        sounds.knock.currentTime = 0;
+        sounds.knock.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+    
+    function playCat() {
+         document.getElementById('status-log').innerText = "🔊 播放中：猫叫...";
+         sounds.cat.currentTime = 0;
+         sounds.cat.play().catch(e => console.log("播放失败，请检查文件路径:", e));
+    }
+
+</script>
+</body>
+</html>
